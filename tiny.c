@@ -273,16 +273,23 @@ void sanitize_uri(char *uri)
 {
     char *tmp;
     int len = strlen(uri);
-    while ((tmp = strstr(uri, "/.."))) {
+
+    // Remove special characters to avoid format string and path traversal vulnerabilities
+    while ((tmp = strstr(uri, "/..")) || 
+        (tmp = strstr(uri, "%")) ||
+        (tmp = strstr(uri, "*")) ||
+        (tmp = strstr(uri, "$")) ||
+        (tmp = strstr(uri, "`"))) {
         *tmp = '\0';
         strcat(uri, tmp+len);
     }
 }
 
 void whitelist_display(char *filename) {
-    const char *allowed[2];
-    allowed[0] = "./home.html";
-    allowed[1] = "./README";
+    const char *allowed[3];
+    allowed[0] = "home.html";
+    allowed[1] = "README";
+    allowed[2] = "godzilla.gif";
     int match_found = 0;
     size_t i = 0;
 
